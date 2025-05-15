@@ -1,0 +1,72 @@
+# Step 1: Import Libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from wordcloud import WordCloud
+import re
+import nltk
+from nltk.corpus import stopwords
+from google.colab import files
+
+# Step 2: Download Stopwords (NLTK)
+nltk.download('stopwords')
+
+# Step 3: Upload CSV File from Local Machine
+uploaded = files.upload()  # Upload `twitter_training.csv` when prompted
+
+# Step 4: Load Dataset
+df = pd.read_csv("twitter_training.csv", header=None)
+df.columns = ['ID', 'Entity', 'Sentiment', 'Tweet']
+
+# Step 5: Preview
+print(df.head())
+print(df['Sentiment'].value_counts())
+
+# Step 6: Clean Tweets
+def clean_text(text):
+    text = str(text).lower()
+    text = re.sub(r"http\S+|www\S+|https\S+", '', text)      # Remove URLs
+    text = re.sub(r'@\w+|\#', '', text)                      # Remove mentions and hashtags
+    text = re.sub(r'[^A-Za-z\s]', '', text)                  # Remove non-alphabetic characters
+    text = re.sub(r'\s+', ' ', text).strip()                 # Remove extra whitespace
+    return text
+
+df['Clean_Tweet'] = df['Tweet'].apply(clean_text)
+
+# Step 7: Remove Stopwords
+stop_words = set(stopwords.words('english'))
+df['Clean_Tweet'] = df['Clean_Tweet'].apply(lambda x: ' '.join(
+    [word for word in x.split() if word not in stop_words]
+))
+
+# Step 8: Visualize Sentiment Distribution
+plt.figure(figsize=(6,4))
+sns.countplot(data=df, x='Sentiment', palette='Set2')
+plt.title("Sentiment Distribution")
+plt.xlabel("Sentiment")
+plt.ylabel("Tweet Count")
+plt.show()
+
+# Step 9: WordClouds by Sentiment
+for sentiment in df['Sentiment'].unique():
+    text = ' '.join(df[df['Sentiment'] == sentiment]['Clean_Tweet'])
+    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
+    
+    plt.figure(figsize=(10,5))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis('off')
+    plt.title(f"Word Cloud - {sentiment} Tweets")
+    plt.show()
+
+# Step 10: Sentiment Proportions by Entity
+entity_sentiment = df.groupby(['Entity', 'Sentiment']).size().unstack().fillna(0)
+entity_sentiment_norm = entity_sentiment.div(entity_sentiment.sum(axis=1), axis=0)
+
+entity_sentiment_norm.plot(kind='bar', stacked=True, colormap='Accent', figsize=(14,6))
+plt.title("Sentiment Proportion by Entity")
+plt.xlabel("Entity")
+plt.ylabel("Proportion")
+plt.legend(title="Sentiment")
+plt.tight_layout()
+plt.show()
