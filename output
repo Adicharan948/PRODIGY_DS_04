@@ -1,0 +1,24 @@
+   ID       Entity Sentiment  \
+0  2401  Borderlands  Positive   
+1  2401  Borderlands  Positive   
+2  2401  Borderlands  Positive   
+3  2401  Borderlands  Positive   
+4  2401  Borderlands  Positive   
+
+                                               Tweet  
+0  im getting on borderlands and i will murder yo...  
+1  I am coming to the borders and I will kill you...  
+2  im getting on borderlands and i will kill you ...  
+3  im coming on borderlands and i will murder you...  
+4  im getting on borderlands 2 and i will murder ...  
+Sentiment
+Negative      22542
+Positive      20832
+Neutral       18318
+Irrelevant    12990
+Name: count, dtype: int64
+<ipython-input-4-6029efd9ce21>:45: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.countplot(data=df, x='Sentiment', palette='Set2')
